@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 
@@ -9,19 +10,21 @@ import (
 )
 
 type APIServer struct {
+	db      *sql.DB
 	address string
 }
 
-func CreateAPIServer(address string) *APIServer {
+func CreateAPIServer(address string, db *sql.DB) *APIServer {
 	return &APIServer{
 		address: address,
+		db:      db,
 	}
 }
 
 func (sv *APIServer) Run() error {
 	router := chi.NewRouter()
 
-	userStore := user.CreateStore()
+	userStore := user.CreateStore(sv.db)
 	userHandler := user.CreateHandler(userStore)
 
 	router.Route("/api/v1", func(r chi.Router) {
