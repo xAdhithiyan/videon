@@ -1,0 +1,9 @@
+
+distributed video processing platform
+  features -> compress video, generate thumbnails, transcode, add watermark, video summary
+  go concurrent (water pools), context mangement, streaming data processing, interfaces 
+  aws -> s3, sqs, lamdha, AWS MediaConvert
+  sql -> handle migraation
+
+  kafka
+
