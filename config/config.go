@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -13,6 +14,9 @@ type AllEnvs struct {
 	DbUser     string
 	DbPassword string
 	DbName     string
+
+	JWTSecrect        string
+	JWTExpirationTime int
 }
 
 var Env *AllEnvs = configInit()
@@ -31,6 +35,9 @@ func configInit() *AllEnvs {
 		DbUser:     getEnv("DB_USER"),
 		DbPassword: getEnv("DB_PASSWORD"),
 		DbName:     getEnv("DB_NAME"),
+
+		JWTSecrect:        getEnv("JWT_SECRECT"),
+		JWTExpirationTime: getEnvInt("JWT_EXPIRATION_TIME"),
 	}
 }
 
@@ -39,6 +46,14 @@ func getEnv(envName string) string {
 	if !ok || value == "" {
 		log.Fatal("env missing")
 	}
-
 	return value
+}
+
+func getEnvInt(envName string) int {
+	value, ok := os.LookupEnv(envName)
+	if !ok || value == "" {
+		log.Fatal("env missing")
+	}
+	num, _ := strconv.Atoi(value)
+	return num
 }

@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	dbconn, err := db.CreateDbInstance()
 	if err != nil {
 		log.Fatal(err)
