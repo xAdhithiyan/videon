@@ -21,7 +21,6 @@ func WriteJson(w http.ResponseWriter, status int, payload any, cookieDetails *ty
 	if cookieDetails != nil {
 		cookie := http.Cookie{Name: cookieDetails.Name, Value: cookieDetails.Value}
 		http.SetCookie(w, &cookie)
-		log.Print(cookie)
 		log.Print("Cookie Set")
 	}
 	w.Header().Add("Content-Type", "application/json")

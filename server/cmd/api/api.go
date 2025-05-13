@@ -9,6 +9,7 @@ import (
 	"github.com/xadhithiyan/videon/middlware"
 	"github.com/xadhithiyan/videon/service/user"
 	"github.com/xadhithiyan/videon/service/video"
+	"github.com/xadhithiyan/videon/service/websocket"
 )
 
 type APIServer struct {
@@ -29,13 +30,14 @@ func (sv *APIServer) Run() error {
 	userStore := user.CreateStore(sv.db)
 	userHandler := user.CreateHandler(userStore)
 
-	videoStore := video.CreateStore(sv.db)
-	videoHandler := video.CreateHandler(videoStore)
+	videoHandler := video.CreateHandler()
 
+	ws := websocket.CreateWS(videoHandler)
 	router.Route("/api/v1", func(r chi.Router) {
 		r.Use(middlware.AuthVerification)
 		userHandler.RegsterRoutes(r)
-		videoHandler.RegsterRoutes(r)
+
+		ws.RegisterRouters(r)
 	})
 
 	log.Printf("server started on %s", sv.address)

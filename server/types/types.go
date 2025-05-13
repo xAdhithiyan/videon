@@ -4,9 +4,8 @@ type UserStore interface {
 	CreateUser(User) error
 	GetUserByEmail(email string) (*User, error)
 }
-
-type VideoStore interface {
-	UploadtoS3() string
+type VideoFuns interface {
+	ParseData(msg []byte) (int, bool)
 }
 
 type User struct {
