@@ -30,9 +30,10 @@ func (sv *APIServer) Run() error {
 	userStore := user.CreateStore(sv.db)
 	userHandler := user.CreateHandler(userStore)
 
-	videoHandler := video.CreateHandler()
-
+	videoStore := video.CreateStore(sv.db)
+	videoHandler := video.CreateHandler(videoStore)
 	ws := websocket.CreateWS(videoHandler)
+
 	router.Route("/api/v1", func(r chi.Router) {
 		r.Use(middlware.AuthVerification)
 		userHandler.RegsterRoutes(r)

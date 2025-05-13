@@ -24,20 +24,31 @@ func CreateJWT(key string, userID int) (string, error) {
 	return tokenString, nil
 }
 
-func AuthenticateJwt(tokenStr string) bool {
+func AuthenticateJwt(tokenStr string) (int, bool) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.Env.JWTSecrect), nil
 	})
 
 	if err != nil || !token.Valid {
-		return false
+		return 0, false
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return false
+		return 0, false
 	}
 
-	log.Print("User ID: ", claims["userID"])
-	return true
+	userIDStr, ok := claims["userID"].(string)
+	if !ok {
+		log.Print("Error: userID claim is not a string")
+		return 0, false
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		log.Print("Error converting userID to integer: ", err)
+		return 0, false
+	}
+
+	return userID, true
 }

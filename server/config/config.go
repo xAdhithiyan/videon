@@ -17,6 +17,11 @@ type AllEnvs struct {
 
 	JWTSecrect        string
 	JWTExpirationTime int
+
+	AWSAccessKey  string
+	AWSSecrectKey string
+	AWSS3Bucket   string
+	AWSRegion     string
 }
 
 var Env *AllEnvs = configInit()
@@ -38,6 +43,11 @@ func configInit() *AllEnvs {
 
 		JWTSecrect:        getEnv("JWT_SECRECT"),
 		JWTExpirationTime: getEnvInt("JWT_EXPIRATION_TIME"),
+
+		AWSAccessKey:  getEnv("AWS_ACCESS_KEY"),
+		AWSSecrectKey: getEnv("AWS_SECRECT_KEY"),
+		AWSS3Bucket:   getEnv("AWS_S3_BUCKET"),
+		AWSRegion:     getEnv("AWS_REGION"),
 	}
 }
 

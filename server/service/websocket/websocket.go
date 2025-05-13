@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
+	"github.com/xadhithiyan/videon/service/auth"
 	"github.com/xadhithiyan/videon/types"
 )
 
@@ -43,20 +44,24 @@ func (ws *ws) wsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if messageType == 1 || messageType == 2 {
-			_, ok := ws.videoFuns.ParseData(p)
-			if ok {
-				if err := conn.WriteMessage(messageType, []byte("Chunk recieved")); err != nil {
-					log.Println("Write error: ", err)
-					break
-				}
-			} else {
-				if err := conn.WriteMessage(messageType, []byte("Chunk not recieved")); err != nil {
-					log.Println("Write error: ", err)
-					break
-				}
+		token, _ := r.Cookie("token")
+		userID, _ := auth.AuthenticateJwt(token.Value)
 
-			}
+		if messageType == 1 || messageType == 2 {
+			go func() {
+				_, ok := ws.videoFuns.ParseData(p, userID)
+				if ok {
+					if err := conn.WriteMessage(messageType, []byte("Chunk recieved")); err != nil {
+						log.Println("Write error: ", err)
+
+					}
+				} else {
+					if err := conn.WriteMessage(messageType, []byte("Chunk not recieved")); err != nil {
+						log.Println("Write error: ", err)
+
+					}
+				}
+			}()
 		}
 
 	}

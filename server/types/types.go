@@ -5,7 +5,11 @@ type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
 }
 type VideoFuns interface {
-	ParseData(msg []byte) (int, bool)
+	ParseData(msg []byte, userID int) (int, bool)
+}
+type VideoStore interface {
+	UploadS3(metaData MetaData, data []byte) error
+	AddVideoDB(userId int, metaData MetaData) error
 }
 
 type User struct {
@@ -23,4 +27,25 @@ type LoginUser struct {
 type Cookie struct {
 	Name  string
 	Value string
+}
+
+type MetaData struct {
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	VideoType   string `json:"videoType"`
+	TotalChunks int    `json:"totalChunks"`
+}
+
+type VideoDB struct {
+	UserId      int
+	ID          int
+	Name        string
+	VideoType   string
+	TotalChunks int
+
+	CompressVideo     bool
+	GeenrateThumbnail bool
+	TranscodeVideo    bool
+	AddWaterMark      bool
+	VideoSummary      bool
 }

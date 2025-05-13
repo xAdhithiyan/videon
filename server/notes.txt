@@ -7,3 +7,5 @@ distributed video processing platform
 
   kafka
 
+to do: 
+  the video upload upload to s3 is too slow

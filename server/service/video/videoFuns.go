@@ -4,23 +4,19 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"log"
+
+	"github.com/xadhithiyan/videon/types"
 )
 
 type Handler struct {
+	store types.VideoStore
 }
 
-func CreateHandler() *Handler {
-	return &Handler{}
+func CreateHandler(store types.VideoStore) *Handler {
+	return &Handler{store: store}
 }
 
-type MetaData struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	VideoType   string `json:"videoType"`
-	TotalChunks int    `json:"totalChunks"`
-}
-
-func (h *Handler) ParseData(msg []byte) (int, bool) {
+func (h *Handler) ParseData(msg []byte, userID int) (int, bool) {
 	if len(msg) < 4 {
 		log.Println("No Metadata Length")
 		return -1, false
@@ -32,13 +28,22 @@ func (h *Handler) ParseData(msg []byte) (int, bool) {
 	}
 
 	metaDataByte := msg[4 : 4+metaDataLength]
-	var metaData MetaData
+	var metaData types.MetaData
 	if err := json.Unmarshal(metaDataByte, &metaData); err != nil {
 		log.Println("Error unmarshalling metadata", err)
 		return -1, false
 	}
 
-	log.Print(metaData)
-	// log.Print(msg[4+metaDataLength:])
+	if metaData.Id == 0 {
+		err := h.store.AddVideoDB(userID, metaData)
+		if err != nil {
+			log.Print("Error while uploading video details to postgres: ", err)
+		}
+	}
+
+	if err := h.store.UploadS3(metaData, msg); err != nil {
+		log.Print("Error uploading into S3: ", err)
+		return -1, false
+	}
 	return 1, true
 }
