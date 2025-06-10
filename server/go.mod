@@ -5,6 +5,12 @@ go 1.24.2
 require github.com/golang-migrate/migrate v3.5.4+incompatible
 
 require (
+	github.com/klauspost/compress v1.15.11 // indirect
+	github.com/pierrec/lz4/v4 v4.1.16 // indirect
+	github.com/segmentio/kafka-go v0.4.48 // indirect
+)
+
+require (
 	github.com/aws/aws-sdk-go v1.55.7 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/go-chi/chi v1.5.5

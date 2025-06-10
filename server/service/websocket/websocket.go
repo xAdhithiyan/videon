@@ -1,8 +1,10 @@
 package websocket
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
@@ -35,6 +37,7 @@ func (ws *ws) wsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var connMutex sync.Mutex
 	defer conn.Close()
 
 	for {
@@ -49,14 +52,22 @@ func (ws *ws) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 		if messageType == 1 || messageType == 2 {
 			go func() {
-				_, ok := ws.videoFuns.ParseData(p, userID)
+				chuckId, ok := ws.videoFuns.ParseData(p, userID)
+
+				connMutex.Lock()
+				defer connMutex.Unlock()
+
+				chunkReponse := types.ChunkResponse{ChunkId: chuckId, Uploaded: false}
 				if ok {
-					if err := conn.WriteMessage(messageType, []byte("Chunk recieved")); err != nil {
+					chunkReponse.Uploaded = true
+					chuckRepnseBytes, _ := json.Marshal(chunkReponse)
+					if err := conn.WriteMessage(2, chuckRepnseBytes); err != nil {
 						log.Println("Write error: ", err)
 
 					}
 				} else {
-					if err := conn.WriteMessage(messageType, []byte("Chunk not recieved")); err != nil {
+					chuckRepnseBytes, _ := json.Marshal(chunkReponse)
+					if err := conn.WriteMessage(2, chuckRepnseBytes); err != nil {
 						log.Println("Write error: ", err)
 
 					}

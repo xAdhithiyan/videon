@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import SelectProcess from "@/components/selectProcess";
 
 export default function Home() {
   const [video, setVideo] = useState<File | null>(null);
   const socket = useRef<WebSocket | null>(null);
-  const arr = useRef<Array<Int16Array> | null>(null);
+  const arr = useRef<Array<number> | null>(null);
+  const [uploaded, setUploaded] = useState(false);
 
   const changeVideo = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -13,7 +15,14 @@ export default function Home() {
     }
   };
 
+  type ChunkResponse = {
+    ChunkId: number;
+    Uploaded: boolean;
+  };
+
   const uploadVideo = () => {
+    setUploaded(false);
+
     if (video != null && socket != null) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -62,6 +71,26 @@ export default function Home() {
     }
   };
 
+  const readRecievingData = (data: Blob) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result;
+      const response: ChunkResponse = JSON.parse(text as string);
+
+      if (response.Uploaded && arr.current != null) {
+        arr.current[response.ChunkId] = 1;
+
+        const newArr = arr.current.filter((e) => e == 1);
+        if (newArr.length == arr.current.length) {
+          setUploaded(true);
+        }
+      }
+      console.log(response);
+    };
+
+    reader.readAsText(data);
+  };
+
   useEffect(() => {
     const webSocket = new WebSocket("ws://localhost:8080/api/v1/ws");
     socket.current = webSocket;
@@ -72,7 +101,7 @@ export default function Home() {
     };
 
     const handleMessage = (e: MessageEvent) => {
-      console.log("message from server: ", e.data);
+      readRecievingData(e.data);
     };
 
     const handleClose = (e: CloseEvent) => {
@@ -101,6 +130,12 @@ export default function Home() {
     <>
       <input type="file" accept="video/*" onChange={changeVideo} />
       <button onClick={uploadVideo}>click</button>
+      {uploaded && (
+        <div>
+          <div>Uplaoded</div>
+          <SelectProcess />
+        </div>
+      )}
     </>
   );
 }

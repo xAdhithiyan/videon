@@ -40,6 +40,7 @@ func (s store) UploadS3(metaData types.MetaData, data []byte) error {
 	})
 
 	if err != nil {
+		log.Print(err)
 		return err
 	}
 	log.Print("successfully uploaded chuck: ", metaData.Id)

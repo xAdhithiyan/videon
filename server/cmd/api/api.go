@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/xadhithiyan/videon/middlware"
+	"github.com/xadhithiyan/videon/service/kafka"
 	"github.com/xadhithiyan/videon/service/user"
 	"github.com/xadhithiyan/videon/service/video"
 	"github.com/xadhithiyan/videon/service/websocket"
@@ -32,11 +33,16 @@ func (sv *APIServer) Run() error {
 
 	videoStore := video.CreateStore(sv.db)
 	videoHandler := video.CreateHandler(videoStore)
+
+	producer := kafka.CreateProducer()
+	kafkaHandler := kafka.CreateHandler(producer)
+
 	ws := websocket.CreateWS(videoHandler)
 
 	router.Route("/api/v1", func(r chi.Router) {
 		r.Use(middlware.AuthVerification)
 		userHandler.RegsterRoutes(r)
+		kafkaHandler.RegisterRoutes(r)
 
 		ws.RegisterRouters(r)
 	})

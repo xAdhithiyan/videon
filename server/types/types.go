@@ -1,5 +1,7 @@
 package types
 
+import "net/http"
+
 type UserStore interface {
 	CreateUser(User) error
 	GetUserByEmail(email string) (*User, error)
@@ -10,6 +12,10 @@ type VideoFuns interface {
 type VideoStore interface {
 	UploadS3(metaData MetaData, data []byte) error
 	AddVideoDB(userId int, metaData MetaData) error
+}
+
+type Producer interface {
+	SetupProducer(w http.ResponseWriter, r *http.Request)
 }
 
 type User struct {
@@ -48,4 +54,22 @@ type VideoDB struct {
 	TranscodeVideo    bool
 	AddWaterMark      bool
 	VideoSummary      bool
+}
+
+type ChunkResponse struct {
+	ChunkId  int
+	Uploaded bool
+}
+
+type ProducerPayload struct {
+	VideoId int            `json:"id" validate:"required"`
+	Options ProducerNeeded `json:"options" validate:"required"`
+}
+
+type ProducerNeeded struct {
+	Compress   bool `json:"compress" `
+	Thumbnails bool `json:"thumbnails" `
+	Transcode  bool `json:"transcode" `
+	Watermark  bool `json:"watermark" `
+	Summary    bool `json:"summary" `
 }

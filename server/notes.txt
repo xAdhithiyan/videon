@@ -1,11 +1,13 @@
 
 distributed video processing platform
   features -> compress video, generate thumbnails, transcode, add watermark, video summary
-  go concurrent (water pools), context mangement, streaming data processing, interfaces 
-  aws -> s3, sqs, lamdha, AWS MediaConvert
+  go concurrent (water pools), context mangement, streaming data processing, interfaces(dependency injection) 
+  aws -> s3, lamdha, AWS MediaConvert
   sql -> handle migraation
 
   kafka
 
-to do: 
-  the video upload upload to s3 is too slow
+things to do:  
+  kafka and the functions
+  lamdha 
+  send back percentage upload

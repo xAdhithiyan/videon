@@ -45,5 +45,5 @@ func (h *Handler) ParseData(msg []byte, userID int) (int, bool) {
 		log.Print("Error uploading into S3: ", err)
 		return -1, false
 	}
-	return 1, true
+	return metaData.Id, true
 }
